@@ -1,4 +1,5 @@
 using Microsoft.VisualBasic.Logging;
+using System.Diagnostics.Eventing.Reader;
 using System.Net;
 
 namespace TechVisionLab2
@@ -10,13 +11,19 @@ namespace TechVisionLab2
         Rectangle rect;
         Bitmap originalImage;
         Bitmap filteredImage;
-
+        bool mask = false;
         int Rmin = 0;
         int Rmax = 255;
         int Gmin = 0;
         int Gmax = 255;
         int Bmin = 0;
         int Bmax = 255;
+
+        double correctionCoefficient;
+        int avg;
+        int avgR;
+        int avgG;
+        int avgB;
         public Form1()
         {
             InitializeComponent();
@@ -101,11 +108,12 @@ namespace TechVisionLab2
                 }
             }
 
-            int avgR = totalR / count;
-            int avgG = totalG / count;
-            int avgB = totalB / count;
+            avgR = totalR / count;
+            avgG = totalG / count;
+            avgB = totalB / count;
+            avg = (avgR + avgG + avgB) / 3;
 
-            double correctionCoefficient = (avgR + avgG + avgB) / (3.0 * avgG);
+            correctionCoefficient = (avgR + avgG + avgB) / (3.0 * avgG);
         }
 
         private void PBMouseMove(object sender, MouseEventArgs e)
@@ -137,40 +145,54 @@ namespace TechVisionLab2
 
         private void BlackMask_Click(object sender, EventArgs e)
         {
-            if (RminTB.Text == null || RmaxTB.Text == null
+            if (mask == false)
+            {
+                if (RminTB.Text == null || RmaxTB.Text == null
                 || GminTB.Text == null || GmaxTB.Text == null
                 || BminTB.Text == null || BmaxTB.Text == null)
-            {
-                MessageBox.Show("Ограничения не введены");
-                return;
-            }
-            try
-            {
-                Rmin = int.Parse(RminTB.Text);
-                Rmax = int.Parse(RmaxTB.Text);
-                Gmin = int.Parse(GminTB.Text);
-                Gmax = int.Parse(GmaxTB.Text);
-                Bmin = int.Parse(BminTB.Text);
-                Bmax = int.Parse(BmaxTB.Text);
-            }
-            catch
-            {
-                MessageBox.Show("Данные введены не верно");
-                return;
-            }
-
-            for (int x = 0; x < pictureBox1.Width; x++)
-            {
-                for (int y = 0; y < pictureBox1.Height; y++)
                 {
-                    Color pixelColor = originalImage.GetPixel(x, y);
-                    if (pixelColor.R < Rmin || pixelColor.R > Rmax
-                        || pixelColor.G < Gmin || pixelColor.G > Gmax
-                        || pixelColor.B < Bmin || pixelColor.B > Bmax)
-                    {
-                        filteredImage.SetPixel(x, y, Color.FromArgb(0, 0, 0, 0));
-                    }
+                    MessageBox.Show("Ограничения не введены");
+                    return;
                 }
+                try
+                {
+                    Rmin = int.Parse(RminTB.Text);
+                    Rmax = int.Parse(RmaxTB.Text);
+                    Gmin = int.Parse(GminTB.Text);
+                    Gmax = int.Parse(GmaxTB.Text);
+                    Bmin = int.Parse(BminTB.Text);
+                    Bmax = int.Parse(BmaxTB.Text);
+                }
+                catch
+                {
+                    MessageBox.Show("Данные введены не верно");
+                    return;
+                }
+
+                for (int x = 0; x < pictureBox1.Width; x++)
+                {
+                    for (int y = 0; y < pictureBox1.Height; y++)
+                    {
+                        Color pixelColor = originalImage.GetPixel(x, y);
+                        if (pixelColor.R < Rmin || pixelColor.R > Rmax
+                            || pixelColor.G < Gmin || pixelColor.G > Gmax
+                            || pixelColor.B < Bmin || pixelColor.B > Bmax)
+                        {
+                            filteredImage.SetPixel(x, y, Color.FromArgb(255, 0, 0, 0));
+                        }
+                        else
+                        {
+                            filteredImage.SetPixel(x, y, Color.FromArgb(255, 255, 255, 255));
+                        }
+                    }
+                    pictureBox1.Image = filteredImage;
+                }
+                mask = true;
+            }
+            else if (mask)
+            {
+                pictureBox1.Image = originalImage;
+                mask = false;
             }
         }
 
@@ -183,8 +205,10 @@ namespace TechVisionLab2
                 for (int y = 0; y < originalImage.Height; y++)
                 {
                     Color pixelColor = originalImage.GetPixel(x, y);
-                    int grayscaleValue = (int)(0.299 * pixelColor.R + 0.587 * pixelColor.G + 0.114 * pixelColor.B);
-                    Color grayscaleColor = Color.FromArgb(grayscaleValue, grayscaleValue, grayscaleValue);
+                    int grayscaleValue = (int)(correctionCoefficient * pixelColor.R + correctionCoefficient * pixelColor.G + correctionCoefficient * pixelColor.B);
+                    Color grayscaleColor = Color.FromArgb((int)(avg * pixelColor.R / avgR) <255 ? (int)(avg * pixelColor.R / avgR) : 255,
+                                                        (int)(avg * pixelColor.G / avgG) < 255 ? (int)(avg * pixelColor.G / avgG) : 255,
+                                                        (int)(avg * pixelColor.B / avgB) < 255 ? (int)(avg * pixelColor.B / avgB) : 255);
                     grayscaleImage.SetPixel(x, y, grayscaleColor);
                 }
             }
@@ -195,9 +219,31 @@ namespace TechVisionLab2
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBox1.Checked)
-                pictureBox1.Image = filteredImage;
+                pictureBox1.Image = ConvertToGrayscale(filteredImage);
             else
-                pictureBox1.Image = originalImage;
+                pictureBox1.Image = filteredImage;
+        }
+
+        private void ClusterSearch()
+        {
+            var list = PointCreate();
+            for (int i = 0; i < list.Count; i++)
+            {
+                for (int j = 0; j < list.Count; i++)
+                {
+                    int L = (int)Math.Sqrt(Math.Pow(list[j].X - list[i].X, 2) + Math.Pow(list[j].Y - list[i].Y, 2));
+                }
+            }
+        }
+
+        private List<Pixel> PointCreate()
+        {
+            var list = new List<Pixel>();
+            for(int x = 0; x < filteredImage.Width; x++)
+                for ( int y = 0; y < filteredImage.Height; y++)
+                    if (filteredImage.GetPixel(x,y) != Color.FromArgb(0, 0, 0))
+                        list.Add(new Pixel(x,y, filteredImage.GetPixel(x, y)));
+            return list;
         }
     }
 }

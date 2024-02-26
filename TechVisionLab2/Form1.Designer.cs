@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             ListView = new ListView();
             pictureBox1 = new PictureBox();
             PathTb = new TextBox();
@@ -78,7 +79,7 @@
             PathTb.Name = "PathTb";
             PathTb.Size = new Size(150, 27);
             PathTb.TabIndex = 2;
-            PathTb.Text = "C:\\Users\\Никита\\source\\repos\\TechVisionLab2\\TechVisionLab2\\Images";
+            PathTb.Text = "Z:\\GitHub\\TechVisionLab2\\TechVisionLab2\\Images";
             // 
             // PathSetButton
             // 
@@ -97,7 +98,6 @@
             PixelRead.Name = "PixelRead";
             PixelRead.Size = new Size(147, 24);
             PixelRead.TabIndex = 4;
-            PixelRead.TabStop = true;
             PixelRead.Text = "Read pixel param";
             PixelRead.UseVisualStyleBackColor = true;
             // 
@@ -114,6 +114,7 @@
             // radioButton1
             // 
             radioButton1.AutoSize = true;
+            radioButton1.Checked = true;
             radioButton1.Location = new Point(12, 313);
             radioButton1.Name = "radioButton1";
             radioButton1.Size = new Size(84, 24);
@@ -270,6 +271,7 @@
             Controls.Add(PathTb);
             Controls.Add(pictureBox1);
             Controls.Add(ListView);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "Form1";
             Text = "TechVisionLab2Klimenko";
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
