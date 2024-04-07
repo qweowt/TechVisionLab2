@@ -6,17 +6,37 @@ using System.Threading.Tasks;
 
 namespace TechVisionLab2
 {
-    public class Cluster
+    public class Sector
     {
-        public int cX {  get; set; }
-        public int cY {  get; set; }
-        public int size {  get; set; }
+        public Pixel[,] Pixels {  get; set; }
+        public bool HasWhite {  get; set; }
+        public int CountWhite;
 
-        public Cluster(int cx, int cy, int s)
+        public Sector(Pixel[,] pixels)
         {
-            cX = cx;
-            cY = cy;
-            size = s;
+            Pixels = pixels;
+            HasWhite = ClusterCheck(); 
+        }
+
+        private bool ClusterCheck()
+        {
+            int CountWhitePixels = 0;
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    if (Pixels[i, j].color == Color.FromArgb(255, 255, 255, 255))
+                    {
+                        CountWhitePixels++;
+                    }
+                }
+            }
+            CountWhite = CountWhitePixels;
+            if (CountWhitePixels > 0)
+                return true;
+            else
+                return false;
+            
         }
     }
 }

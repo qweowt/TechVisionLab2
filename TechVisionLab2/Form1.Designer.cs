@@ -50,6 +50,8 @@
             BminTB = new TextBox();
             BlackMask = new Button();
             checkBox1 = new CheckBox();
+            AvgLabel = new Label();
+            Compress = new Button();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
@@ -57,7 +59,7 @@
             // 
             ListView.Location = new Point(12, 12);
             ListView.Name = "ListView";
-            ListView.Size = new Size(150, 200);
+            ListView.Size = new Size(150, 147);
             ListView.TabIndex = 0;
             ListView.UseCompatibleStateImageBehavior = false;
             ListView.SelectedIndexChanged += ListView_SelectedIndexChanged;
@@ -75,7 +77,7 @@
             // 
             // PathTb
             // 
-            PathTb.Location = new Point(12, 218);
+            PathTb.Location = new Point(12, 167);
             PathTb.Name = "PathTb";
             PathTb.Size = new Size(150, 27);
             PathTb.TabIndex = 2;
@@ -83,7 +85,7 @@
             // 
             // PathSetButton
             // 
-            PathSetButton.Location = new Point(12, 251);
+            PathSetButton.Location = new Point(12, 200);
             PathSetButton.Name = "PathSetButton";
             PathSetButton.Size = new Size(150, 27);
             PathSetButton.TabIndex = 3;
@@ -94,7 +96,7 @@
             // PixelRead
             // 
             PixelRead.AutoSize = true;
-            PixelRead.Location = new Point(12, 284);
+            PixelRead.Location = new Point(12, 233);
             PixelRead.Name = "PixelRead";
             PixelRead.Size = new Size(147, 24);
             PixelRead.TabIndex = 4;
@@ -104,7 +106,7 @@
             // labelPixelColor
             // 
             labelPixelColor.AutoSize = true;
-            labelPixelColor.Location = new Point(12, 340);
+            labelPixelColor.Location = new Point(12, 289);
             labelPixelColor.Name = "labelPixelColor";
             labelPixelColor.Size = new Size(50, 20);
             labelPixelColor.TabIndex = 5;
@@ -115,7 +117,7 @@
             // 
             radioButton1.AutoSize = true;
             radioButton1.Checked = true;
-            radioButton1.Location = new Point(12, 313);
+            radioButton1.Location = new Point(12, 262);
             radioButton1.Name = "radioButton1";
             radioButton1.Size = new Size(84, 24);
             radioButton1.TabIndex = 6;
@@ -245,11 +247,32 @@
             checkBox1.UseVisualStyleBackColor = true;
             checkBox1.CheckedChanged += checkBox1_CheckedChanged;
             // 
+            // AvgLabel
+            // 
+            AvgLabel.AutoSize = true;
+            AvgLabel.Location = new Point(12, 289);
+            AvgLabel.Name = "AvgLabel";
+            AvgLabel.Size = new Size(40, 20);
+            AvgLabel.TabIndex = 21;
+            AvgLabel.Text = "AVG:";
+            // 
+            // Compress
+            // 
+            Compress.Location = new Point(574, 200);
+            Compress.Name = "Compress";
+            Compress.Size = new Size(136, 29);
+            Compress.TabIndex = 22;
+            Compress.Text = "Compress";
+            Compress.UseVisualStyleBackColor = true;
+            Compress.Click += Compress_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(748, 424);
+            Controls.Add(Compress);
+            Controls.Add(AvgLabel);
             Controls.Add(checkBox1);
             Controls.Add(BlackMask);
             Controls.Add(label5);
@@ -302,5 +325,7 @@
         private TextBox BminTB;
         private Button BlackMask;
         private CheckBox checkBox1;
+        private Label AvgLabel;
+        private Button Compress;
     }
 }

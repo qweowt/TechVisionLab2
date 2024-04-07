@@ -1,6 +1,7 @@
 using Microsoft.VisualBasic.Logging;
 using System.Diagnostics.Eventing.Reader;
 using System.Net;
+using System.Windows.Forms;
 
 namespace TechVisionLab2
 {
@@ -11,6 +12,7 @@ namespace TechVisionLab2
         Rectangle rect;
         Bitmap originalImage;
         Bitmap filteredImage;
+        Sector[,] sectors = new Sector[10, 10];
         bool mask = false;
         int Rmin = 0;
         int Rmax = 255;
@@ -49,8 +51,9 @@ namespace TechVisionLab2
                 string selectedImagePath = ListView.SelectedItems[0].Tag.ToString();
 
                 originalImage = new Bitmap(selectedImagePath);
-                pictureBox1.Image = originalImage;
-                filteredImage = new Bitmap(originalImage);
+                pictureBox1.Image = new Bitmap(originalImage);
+                filteredImage = new Bitmap(selectedImagePath);
+
             }
         }
 
@@ -62,8 +65,8 @@ namespace TechVisionLab2
             {
                 EndPoint = StartPoint;
 
-                using (Graphics g = Graphics.FromImage(pictureBox1.Image))
-                    g.DrawRectangle(Pens.Red, StartPoint.X, StartPoint.Y, 1, 1);
+                //using (Graphics g = Graphics.FromImage(pictureBox1.Image))
+                //    g.DrawRectangle(Pens.Red, StartPoint.X, StartPoint.Y, 1, 1);
 
                 pictureBox1.Invalidate();
             }
@@ -79,15 +82,9 @@ namespace TechVisionLab2
                 int height = Math.Abs(EndPoint.Y - StartPoint.Y);
 
                 rect = new Rectangle(Math.Min(StartPoint.X, EndPoint.X), Math.Min(StartPoint.Y, EndPoint.Y), width, height);
-
-                using (Graphics g = Graphics.FromImage(pictureBox1.Image))
-                {
-                    g.DrawRectangle(Pens.Red, rect);
-                }
-
                 pictureBox1.Invalidate();
-
                 CalculateAverageColor();
+                AvgLabel.Text = "AVG: " + Math.Round(correctionCoefficient, 4).ToString();
             }
         }
 
@@ -194,6 +191,7 @@ namespace TechVisionLab2
                 pictureBox1.Image = originalImage;
                 mask = false;
             }
+            //ClusterSearch();
         }
 
         private Bitmap ConvertToGrayscale(Bitmap originalImage)
@@ -206,7 +204,7 @@ namespace TechVisionLab2
                 {
                     Color pixelColor = originalImage.GetPixel(x, y);
                     int grayscaleValue = (int)(correctionCoefficient * pixelColor.R + correctionCoefficient * pixelColor.G + correctionCoefficient * pixelColor.B);
-                    Color grayscaleColor = Color.FromArgb((int)(avg * pixelColor.R / avgR) <255 ? (int)(avg * pixelColor.R / avgR) : 255,
+                    Color grayscaleColor = Color.FromArgb((int)(avg * pixelColor.R / avgR) < 255 ? (int)(avg * pixelColor.R / avgR) : 255,
                                                         (int)(avg * pixelColor.G / avgG) < 255 ? (int)(avg * pixelColor.G / avgG) : 255,
                                                         (int)(avg * pixelColor.B / avgB) < 255 ? (int)(avg * pixelColor.B / avgB) : 255);
                     grayscaleImage.SetPixel(x, y, grayscaleColor);
@@ -219,31 +217,92 @@ namespace TechVisionLab2
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBox1.Checked)
-                pictureBox1.Image = ConvertToGrayscale(filteredImage);
+                pictureBox1.Image = ConvertToGrayscale(originalImage);
             else
-                pictureBox1.Image = filteredImage;
+                pictureBox1.Image = originalImage;
         }
 
         private void ClusterSearch()
         {
-            var list = PointCreate();
-            for (int i = 0; i < list.Count; i++)
-            {
-                for (int j = 0; j < list.Count; i++)
-                {
-                    int L = (int)Math.Sqrt(Math.Pow(list[j].X - list[i].X, 2) + Math.Pow(list[j].Y - list[i].Y, 2));
-                }
-            }
+            
+            pictureBox1.Image = filteredImage;
+            for (int i = 0; i < filteredImage.Width; i+=10)
+                for (int j = 0; j < filteredImage.Height; i+=10)
+                    sectors[i, j] = new Sector(SectorCreate(i,j));
+
         }
 
-        private List<Pixel> PointCreate()
+        private void CompressImage(Bitmap originalImage, int iterations)
         {
-            var list = new List<Pixel>();
-            for(int x = 0; x < filteredImage.Width; x++)
-                for ( int y = 0; y < filteredImage.Height; y++)
-                    if (filteredImage.GetPixel(x,y) != Color.FromArgb(0, 0, 0))
-                        list.Add(new Pixel(x,y, filteredImage.GetPixel(x, y)));
+            Bitmap processedImage = new Bitmap(originalImage.Width, originalImage.Height);
+            Bitmap tmpImage = new Bitmap(originalImage.Width, originalImage.Height);
+
+            // Erosion
+            for (int i = 0; i < iterations; i++)
+            {
+                for (int x = 1; x < originalImage.Width - 1; x++)
+                {
+                    for (int y = 1; y < originalImage.Height - 1; y++)
+                    {
+                        if (originalImage.GetPixel(x, y) == Color.FromArgb(255, 0,0,0) ||
+                            originalImage.GetPixel(x - 1, y) == Color.FromArgb(255, 0, 0, 0) ||
+                            originalImage.GetPixel(x + 1, y) == Color.FromArgb(255, 0, 0, 0) ||
+                            originalImage.GetPixel(x, y - 1) == Color.FromArgb(255, 0, 0, 0) ||
+                            originalImage.GetPixel(x, y + 1) == Color.FromArgb(255, 0, 0, 0))
+                        {
+                            tmpImage.SetPixel(x, y, Color.FromArgb(255, 0, 0, 0));
+                        }
+                        else
+                        {
+                            tmpImage.SetPixel(x, y, Color.FromArgb(255, 255, 255, 255));
+                        }
+                    }
+                }
+
+                // Dilation
+                for (int x = 1; x < originalImage.Width - 1; x++)
+                {
+                    for (int y = 1; y < originalImage.Height - 1; y++)
+                    {
+                        if (tmpImage.GetPixel(x, y) == Color.FromArgb(255, 255, 255, 255) ||
+                            tmpImage.GetPixel(x - 1, y) == Color.FromArgb(255, 255, 255, 255) ||
+                            tmpImage.GetPixel(x + 1, y) == Color.FromArgb(255, 255, 255, 255) ||
+                            tmpImage.GetPixel(x, y - 1) == Color.FromArgb(255, 255, 255, 255) ||
+                            tmpImage.GetPixel(x, y + 1) == Color.FromArgb(255, 255, 255, 255))
+                        {
+                            processedImage.SetPixel(x, y, Color.FromArgb(255, 255, 255, 255));
+                        }
+                        else
+                        {
+                            processedImage.SetPixel(x, y, Color.FromArgb(255, 0, 0, 0));
+                        }
+                    }
+                }
+            }
+
+            pictureBox1.Image = processedImage;
+        }
+
+        private Pixel[,] SectorCreate(int X, int Y)
+        {
+            Pixel[,] list = new Pixel[40, 40];
+            for (int x = X; x < 40; x++)
+                for (int y = Y; y < 40; y++)
+                    list[x, y] = new Pixel(X + x, Y + y, filteredImage.GetPixel(X + x, Y + y));
             return list;
+        }
+
+        private void Compress_Click(object sender, EventArgs e)
+        {
+            int iterations = 1;
+            if (filteredImage != null)
+            {
+                CompressImage(filteredImage, iterations);
+            }
+            else
+            {
+                MessageBox.Show("Please load an image first.");
+            }
         }
     }
 }
