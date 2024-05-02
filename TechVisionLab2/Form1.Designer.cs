@@ -52,6 +52,10 @@
             checkBox1 = new CheckBox();
             AvgLabel = new Label();
             Compress = new Button();
+            clusterSearchBtn = new Button();
+            comboBox1 = new ComboBox();
+            label7 = new Label();
+            autoMode = new Button();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
@@ -127,7 +131,7 @@
             // 
             // RminTB
             // 
-            RminTB.Location = new Point(574, 29);
+            RminTB.Location = new Point(574, 82);
             RminTB.Name = "RminTB";
             RminTB.Size = new Size(77, 27);
             RminTB.TabIndex = 7;
@@ -136,7 +140,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(574, 9);
+            label1.Location = new Point(574, 62);
             label1.Name = "label1";
             label1.Size = new Size(43, 20);
             label1.TabIndex = 8;
@@ -145,7 +149,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(657, 9);
+            label2.Location = new Point(657, 62);
             label2.Name = "label2";
             label2.Size = new Size(46, 20);
             label2.TabIndex = 10;
@@ -153,7 +157,7 @@
             // 
             // RmaxTB
             // 
-            RmaxTB.Location = new Point(657, 29);
+            RmaxTB.Location = new Point(657, 82);
             RmaxTB.Name = "RmaxTB";
             RmaxTB.Size = new Size(77, 27);
             RmaxTB.TabIndex = 9;
@@ -162,7 +166,7 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(657, 60);
+            label3.Location = new Point(657, 113);
             label3.Name = "label3";
             label3.Size = new Size(47, 20);
             label3.TabIndex = 14;
@@ -170,7 +174,7 @@
             // 
             // GmaxTB
             // 
-            GmaxTB.Location = new Point(657, 80);
+            GmaxTB.Location = new Point(657, 133);
             GmaxTB.Name = "GmaxTB";
             GmaxTB.Size = new Size(77, 27);
             GmaxTB.TabIndex = 13;
@@ -179,7 +183,7 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(574, 60);
+            label4.Location = new Point(574, 113);
             label4.Name = "label4";
             label4.Size = new Size(44, 20);
             label4.TabIndex = 12;
@@ -187,7 +191,7 @@
             // 
             // GminTB
             // 
-            GminTB.Location = new Point(574, 80);
+            GminTB.Location = new Point(574, 133);
             GminTB.Name = "GminTB";
             GminTB.Size = new Size(77, 27);
             GminTB.TabIndex = 11;
@@ -196,7 +200,7 @@
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(657, 112);
+            label5.Location = new Point(657, 165);
             label5.Name = "label5";
             label5.Size = new Size(46, 20);
             label5.TabIndex = 18;
@@ -204,7 +208,7 @@
             // 
             // BmaxTB
             // 
-            BmaxTB.Location = new Point(657, 132);
+            BmaxTB.Location = new Point(657, 185);
             BmaxTB.Name = "BmaxTB";
             BmaxTB.Size = new Size(77, 27);
             BmaxTB.TabIndex = 17;
@@ -213,7 +217,7 @@
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(574, 112);
+            label6.Location = new Point(574, 165);
             label6.Name = "label6";
             label6.Size = new Size(43, 20);
             label6.TabIndex = 16;
@@ -221,7 +225,7 @@
             // 
             // BminTB
             // 
-            BminTB.Location = new Point(574, 132);
+            BminTB.Location = new Point(574, 185);
             BminTB.Name = "BminTB";
             BminTB.Size = new Size(77, 27);
             BminTB.TabIndex = 15;
@@ -229,7 +233,7 @@
             // 
             // BlackMask
             // 
-            BlackMask.Location = new Point(574, 165);
+            BlackMask.Location = new Point(574, 218);
             BlackMask.Name = "BlackMask";
             BlackMask.Size = new Size(136, 29);
             BlackMask.TabIndex = 19;
@@ -240,7 +244,7 @@
             // checkBox1
             // 
             checkBox1.AutoSize = true;
-            checkBox1.Location = new Point(716, 172);
+            checkBox1.Location = new Point(716, 225);
             checkBox1.Name = "checkBox1";
             checkBox1.Size = new Size(18, 17);
             checkBox1.TabIndex = 20;
@@ -258,7 +262,7 @@
             // 
             // Compress
             // 
-            Compress.Location = new Point(574, 200);
+            Compress.Location = new Point(574, 253);
             Compress.Name = "Compress";
             Compress.Size = new Size(136, 29);
             Compress.TabIndex = 22;
@@ -266,11 +270,54 @@
             Compress.UseVisualStyleBackColor = true;
             Compress.Click += Compress_Click;
             // 
+            // clusterSearchBtn
+            // 
+            clusterSearchBtn.Location = new Point(574, 288);
+            clusterSearchBtn.Name = "clusterSearchBtn";
+            clusterSearchBtn.Size = new Size(136, 29);
+            clusterSearchBtn.TabIndex = 23;
+            clusterSearchBtn.Text = "Search Clusters";
+            clusterSearchBtn.UseVisualStyleBackColor = true;
+            clusterSearchBtn.Click += ClusterSearch;
+            // 
+            // comboBox1
+            // 
+            comboBox1.FormattingEnabled = true;
+            comboBox1.Items.AddRange(new object[] { "default", "Yellow", "Red", "Green" });
+            comboBox1.Location = new Point(574, 31);
+            comboBox1.Name = "comboBox1";
+            comboBox1.Size = new Size(160, 28);
+            comboBox1.TabIndex = 24;
+            comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
+            // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.Location = new Point(575, 8);
+            label7.Name = "label7";
+            label7.Size = new Size(58, 20);
+            label7.TabIndex = 25;
+            label7.Text = "Manual";
+            // 
+            // autoMode
+            // 
+            autoMode.Location = new Point(574, 357);
+            autoMode.Name = "autoMode";
+            autoMode.Size = new Size(136, 29);
+            autoMode.TabIndex = 26;
+            autoMode.Text = "Light Search";
+            autoMode.UseVisualStyleBackColor = true;
+            autoMode.Click += autoMode_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(748, 424);
+            ClientSize = new Size(904, 424);
+            Controls.Add(autoMode);
+            Controls.Add(label7);
+            Controls.Add(comboBox1);
+            Controls.Add(clusterSearchBtn);
             Controls.Add(Compress);
             Controls.Add(AvgLabel);
             Controls.Add(checkBox1);
@@ -327,5 +374,9 @@
         private CheckBox checkBox1;
         private Label AvgLabel;
         private Button Compress;
+        private Button clusterSearchBtn;
+        private ComboBox comboBox1;
+        private Label label7;
+        private Button autoMode;
     }
 }

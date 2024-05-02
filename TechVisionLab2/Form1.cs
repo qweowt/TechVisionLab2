@@ -1,4 +1,5 @@
 using Microsoft.VisualBasic.Logging;
+using System.ComponentModel;
 using System.Diagnostics.Eventing.Reader;
 using System.Net;
 using System.Windows.Forms;
@@ -12,7 +13,7 @@ namespace TechVisionLab2
         Rectangle rect;
         Bitmap originalImage;
         Bitmap filteredImage;
-        Sector[,] sectors = new Sector[10, 10];
+        Sector[,] sectors = new Sector[40, 40];
         bool mask = false;
         int Rmin = 0;
         int Rmax = 255;
@@ -53,7 +54,6 @@ namespace TechVisionLab2
                 originalImage = new Bitmap(selectedImagePath);
                 pictureBox1.Image = new Bitmap(originalImage);
                 filteredImage = new Bitmap(selectedImagePath);
-
             }
         }
 
@@ -222,17 +222,43 @@ namespace TechVisionLab2
                 pictureBox1.Image = originalImage;
         }
 
-        private void ClusterSearch()
+        private void ClusterSearch(object sender, EventArgs e)
         {
-            
-            pictureBox1.Image = filteredImage;
-            for (int i = 0; i < filteredImage.Width; i+=10)
-                for (int j = 0; j < filteredImage.Height; i+=10)
-                    sectors[i, j] = new Sector(SectorCreate(i,j));
+            int maxSize = 10;
+            int I = 0, J = 0;
+            int W = 10;
+            int H = 10;
 
+            //pictureBox1.Image = filteredImage;
+            for (int i = 0; i < 40; i++)
+                for (int j = 0; j < 40; j++)
+                    sectors[i, j] = new Sector(SectorCreate(i * 10, j * 10), i * 10, j * 10, filteredImage);
+
+            for (int i = 0; i < 40; i++)
+                for (int j = 0; j < 40; j++)
+                    if (sectors[i, j].cluster != null)
+                        if (sectors[i, j].cluster.size > maxSize)
+                        {
+                            maxSize = sectors[i, j].cluster.size;
+                            I = i;
+                            J = j;
+                            sectors[i, j].cluster.SizeSearch();
+                            W = sectors[i, j].cluster.Wmax - sectors[i, j].cluster.X;
+                            H = sectors[i, j].cluster.Hmax - sectors[i, j].cluster.Y;
+                        }
+
+
+            pictureBox1.Image = originalImage;
+            Graphics g = Graphics.FromImage(filteredImage);
+            //for (int i = 0; i < 40; i++)
+            //    for (int j = 0; j < 40; j++)
+            //        if (sectors[i, j].CountWhite > 0)
+            //            if (sectors[i, j].cluster != null)
+            //                g.DrawRectangle(new Pen(Color.Red), sectors[i, j].cluster.X, sectors[i, j].cluster.Y, sectors[i, j].cluster.size, sectors[i, j].cluster.size);
+            g.DrawRectangle(new Pen(Color.DeepPink), sectors[I, J].cluster.X, sectors[I, J].cluster.Y, W, H);
         }
 
-        private void CompressImage(Bitmap originalImage, int iterations)
+        private Bitmap CompressImage(Bitmap originalImage, int iterations)
         {
             Bitmap processedImage = new Bitmap(originalImage.Width, originalImage.Height);
             Bitmap tmpImage = new Bitmap(originalImage.Width, originalImage.Height);
@@ -244,7 +270,7 @@ namespace TechVisionLab2
                 {
                     for (int y = 1; y < originalImage.Height - 1; y++)
                     {
-                        if (originalImage.GetPixel(x, y) == Color.FromArgb(255, 0,0,0) ||
+                        if (originalImage.GetPixel(x, y) == Color.FromArgb(255, 0, 0, 0) ||
                             originalImage.GetPixel(x - 1, y) == Color.FromArgb(255, 0, 0, 0) ||
                             originalImage.GetPixel(x + 1, y) == Color.FromArgb(255, 0, 0, 0) ||
                             originalImage.GetPixel(x, y - 1) == Color.FromArgb(255, 0, 0, 0) ||
@@ -280,15 +306,15 @@ namespace TechVisionLab2
                 }
             }
 
-            pictureBox1.Image = processedImage;
+            return processedImage;
         }
 
         private Pixel[,] SectorCreate(int X, int Y)
         {
-            Pixel[,] list = new Pixel[40, 40];
-            for (int x = X; x < 40; x++)
-                for (int y = Y; y < 40; y++)
-                    list[x, y] = new Pixel(X + x, Y + y, filteredImage.GetPixel(X + x, Y + y));
+            Pixel[,] list = new Pixel[10, 10];
+            for (int x = 0; x < 10; x++)
+                for (int y = 0; y < 10; y++)
+                    list[x, y] = new Pixel(x + X, y + Y, filteredImage.GetPixel(X + x, Y + y));
             return list;
         }
 
@@ -297,11 +323,86 @@ namespace TechVisionLab2
             int iterations = 1;
             if (filteredImage != null)
             {
-                CompressImage(filteredImage, iterations);
+                filteredImage = CompressImage(filteredImage, iterations);
+                pictureBox1.Image = filteredImage;
             }
             else
             {
                 MessageBox.Show("Please load an image first.");
+            }
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBox1.SelectedIndex == 0)
+            {
+                RminTB.Text = "0";
+                GminTB.Text = "0";
+                BminTB.Text = "0";
+                RmaxTB.Text = "255";
+                GmaxTB.Text = "255";
+                BmaxTB.Text = "255";
+            }
+            else if (comboBox1.SelectedIndex == 1)
+            {
+                RminTB.Text = "200";
+                GminTB.Text = "200";
+                BminTB.Text = "0";
+                RmaxTB.Text = "255";
+                GmaxTB.Text = "255";
+                BmaxTB.Text = "60";
+            }
+            else if (comboBox1.SelectedIndex == 2)
+            {
+                RminTB.Text = "200";
+                GminTB.Text = "0";
+                BminTB.Text = "0";
+                RmaxTB.Text = "255";
+                GmaxTB.Text = "150";
+                BmaxTB.Text = "150";
+            }
+            else if (comboBox1.SelectedIndex == 3)
+            {
+                RminTB.Text = "100";
+                GminTB.Text = "210";
+                BminTB.Text = "150";
+                RmaxTB.Text = "150";
+                GmaxTB.Text = "255";
+                BmaxTB.Text = "220";
+            }
+        }
+
+        private void autoMode_Click(object sender, EventArgs e)
+        {
+            Rmin = 200;
+            Rmax = 0;
+            Gmin = 0;
+            Gmax = 255;
+            Bmin = 150;
+            Bmax = 150;
+            BlackMaskS();
+            filteredImage = CompressImage(filteredImage, 1);
+            ClusterSearch(sender, e);
+        }
+
+        private void BlackMaskS()
+        {
+            for (int x = 0; x < pictureBox1.Width; x++)
+            {
+                for (int y = 0; y < pictureBox1.Height; y++)
+                {
+                    Color pixelColor = originalImage.GetPixel(x, y);
+                    if (pixelColor.R < Rmin || pixelColor.R > Rmax
+                        || pixelColor.G < Gmin || pixelColor.G > Gmax
+                        || pixelColor.B < Bmin || pixelColor.B > Bmax)
+                    {
+                        filteredImage.SetPixel(x, y, Color.FromArgb(255, 0, 0, 0));
+                    }
+                    else
+                    {
+                        filteredImage.SetPixel(x, y, Color.FromArgb(255, 255, 255, 255));
+                    }
+                }
             }
         }
     }
