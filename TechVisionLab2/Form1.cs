@@ -21,6 +21,7 @@ namespace TechVisionLab2
         int Gmax = 255;
         int Bmin = 0;
         int Bmax = 255;
+        string message = "MANUAL";
 
         double correctionCoefficient;
         int avg;
@@ -47,6 +48,8 @@ namespace TechVisionLab2
 
         private void ListView_SelectedIndexChanged(object sender, EventArgs e)
         {
+            filteredImage = null;
+            originalImage = null;
             if (ListView.SelectedItems.Count > 0)
             {
                 string selectedImagePath = ListView.SelectedItems[0].Tag.ToString();
@@ -142,6 +145,7 @@ namespace TechVisionLab2
 
         private void BlackMask_Click(object sender, EventArgs e)
         {
+            message = "MANUAL";
             if (mask == false)
             {
                 if (RminTB.Text == null || RmaxTB.Text == null
@@ -247,15 +251,18 @@ namespace TechVisionLab2
                             H = sectors[i, j].cluster.Hmax - sectors[i, j].cluster.Y;
                         }
 
-
-            pictureBox1.Image = originalImage;
-            Graphics g = Graphics.FromImage(filteredImage);
-            //for (int i = 0; i < 40; i++)
-            //    for (int j = 0; j < 40; j++)
-            //        if (sectors[i, j].CountWhite > 0)
-            //            if (sectors[i, j].cluster != null)
-            //                g.DrawRectangle(new Pen(Color.Red), sectors[i, j].cluster.X, sectors[i, j].cluster.Y, sectors[i, j].cluster.size, sectors[i, j].cluster.size);
-            g.DrawRectangle(new Pen(Color.DeepPink), sectors[I, J].cluster.X, sectors[I, J].cluster.Y, W, H);
+            if (H * W > 41 * 41)
+            {
+                pictureBox1.Image = originalImage;
+                Graphics g = Graphics.FromImage(originalImage);
+                g.DrawRectangle(new Pen(Color.Black), sectors[I, J].cluster.X, sectors[I, J].cluster.Y, W, H);
+                listBox1.Items.Add(message + ": found");
+            }
+            else
+            {
+                listBox1.Items.Add(message + ": Nothing found");
+                pictureBox1.Image = originalImage;
+            }
         }
 
         private Bitmap CompressImage(Bitmap originalImage, int iterations)
@@ -368,42 +375,75 @@ namespace TechVisionLab2
                 BminTB.Text = "150";
                 RmaxTB.Text = "150";
                 GmaxTB.Text = "255";
-                BmaxTB.Text = "220";
+                BmaxTB.Text = "240";
             }
         }
 
         private void autoMode_Click(object sender, EventArgs e)
         {
-            Rmin = 200;
-            Rmax = 0;
-            Gmin = 0;
-            Gmax = 255;
-            Bmin = 150;
-            Bmax = 150;
-            BlackMaskS();
-            filteredImage = CompressImage(filteredImage, 1);
-            ClusterSearch(sender, e);
+            RedSearchBtn_Click(sender, e);
+            YellowSearchBtn_Click(sender, e);
+            GreenSearchBtn_Click(sender, e);
         }
 
-        private void BlackMaskS()
+
+        private void RedSearchBtn_Click(object sender, EventArgs e)
         {
-            for (int x = 0; x < pictureBox1.Width; x++)
-            {
-                for (int y = 0; y < pictureBox1.Height; y++)
-                {
-                    Color pixelColor = originalImage.GetPixel(x, y);
-                    if (pixelColor.R < Rmin || pixelColor.R > Rmax
-                        || pixelColor.G < Gmin || pixelColor.G > Gmax
-                        || pixelColor.B < Bmin || pixelColor.B > Bmax)
-                    {
-                        filteredImage.SetPixel(x, y, Color.FromArgb(255, 0, 0, 0));
-                    }
-                    else
-                    {
-                        filteredImage.SetPixel(x, y, Color.FromArgb(255, 255, 255, 255));
-                    }
-                }
-            }
+            pictureBox1.Image = originalImage;
+
+            RminTB.Text = "200";
+            GminTB.Text = "0";
+            BminTB.Text = "0";
+            RmaxTB.Text = "255";
+            GmaxTB.Text = "150";
+            BmaxTB.Text = "150";
+
+            BlackMask_Click(sender, e);
+            filteredImage = CompressImage(filteredImage, 1);
+            message = "RED";
+            ClusterSearch(sender, e);
+            mask = false;
+        }
+
+        private void YellowSearchBtn_Click(object sender, EventArgs e)
+        {
+            pictureBox1.Image = originalImage;
+
+            RminTB.Text = "200";
+            GminTB.Text = "200";
+            BminTB.Text = "0";
+            RmaxTB.Text = "255";
+            GmaxTB.Text = "255";
+            BmaxTB.Text = "60";
+
+            BlackMask_Click(sender, e);
+            filteredImage = CompressImage(filteredImage, 1);
+            message = "YELLOW";
+            ClusterSearch(sender, e);
+            mask = false;
+        }
+
+        private void GreenSearchBtn_Click(object sender, EventArgs e)
+        {
+            pictureBox1.Image = originalImage;
+
+            RminTB.Text = "100";
+            GminTB.Text = "210";
+            BminTB.Text = "150";
+            RmaxTB.Text = "150";
+            GmaxTB.Text = "255";
+            BmaxTB.Text = "240";
+
+            BlackMask_Click(sender, e);
+            filteredImage = CompressImage(filteredImage, 1);
+            message = "GREEN";
+            ClusterSearch(sender, e);
+            mask = false;
+        }
+
+        private void ListBoxClearBTN_Click(object sender, EventArgs e)
+        {
+            listBox1.Items.Clear();
         }
     }
 }
