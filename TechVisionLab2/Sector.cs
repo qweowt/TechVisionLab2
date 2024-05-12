@@ -22,9 +22,8 @@ namespace TechVisionLab2
             Y = y;
             image = img;
             if ((float)CountWhite/100 >= 0.30)
-            {
                 cluster = new Cluster(X, Y, pixels, image);
-            }
+
         }
 
         private int ClusterCheck()

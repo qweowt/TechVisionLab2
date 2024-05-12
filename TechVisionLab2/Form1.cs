@@ -50,7 +50,7 @@ namespace TechVisionLab2
         {
             filteredImage = null;
             originalImage = null;
-            if (ListView.SelectedItems.Count > 0)
+            if (ListView.SelectedItems.Count == 1)
             {
                 string selectedImagePath = ListView.SelectedItems[0].Tag.ToString();
 
@@ -68,9 +68,6 @@ namespace TechVisionLab2
             {
                 EndPoint = StartPoint;
 
-                //using (Graphics g = Graphics.FromImage(pictureBox1.Image))
-                //    g.DrawRectangle(Pens.Red, StartPoint.X, StartPoint.Y, 1, 1);
-
                 pictureBox1.Invalidate();
             }
         }
@@ -78,6 +75,8 @@ namespace TechVisionLab2
         private void PBMouseUp(object sender, MouseEventArgs e)
         {
             EndPoint = e.Location;
+            if (StartPoint == EndPoint)
+                return;
 
             if (!PixelRead.Checked)
             {
